@@ -2,15 +2,27 @@ package ru.hse.icebergOrders;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
+import java.util.List;
 import java.util.Scanner;
 
 public class Trading {
-    public static void main(String[] args) {
-        var in = new Scanner(System.in);
+    public static void main(String[] args) throws FileNotFoundException {
+        var in = new Scanner(new FileInputStream(new File("input")));
+        var ordersHolder = new OrdersHolder();
         while (in.hasNext()) {
             String query = in.nextLine();
             if (isOrder(query)) {
                 var orderInfo = parseQuery(query);
+                List<String> tradeMessages = ordersHolder.addOrderInfo(orderInfo);
+                for (var tradeMessage : tradeMessages) {
+                    System.out.print(tradeMessage);
+                }
+
+                System.out.print(ordersHolder.getOrderBook());
             }
         }
     }

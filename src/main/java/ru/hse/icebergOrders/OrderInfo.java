@@ -36,12 +36,16 @@ public class OrderInfo implements Comparable<OrderInfo> {
         return peak;
     }
 
+    @NotNull public OrderType getOrderType() {
+        return orderType;
+    }
+
     @Override
     public int compareTo(@NotNull OrderInfo o) {
         if (price < o.price) {
             return -1;
         } else if (price == o.price) {
-            if (peak < o.peak) {
+            if (peak > o.peak) {
                 return -1;
             } else if (timestamp < o.timestamp) {
                 return -1;

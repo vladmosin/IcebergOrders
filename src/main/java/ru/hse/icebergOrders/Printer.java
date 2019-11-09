@@ -12,9 +12,9 @@ public class Printer {
     private static final int volumeLength = 13;
     private static final int priceLength = 7;
     private static final String emptyRecordSell =
-            "| ".repeat(priceLength) + "|" + " ".repeat(volumeLength) + "|" + " ".repeat(idLength);
+            "|" + " ".repeat(priceLength) + "|" + " ".repeat(volumeLength) + "|" + " ".repeat(idLength) + "|\n";
     private static final String emptyRecordBuy =
-            "| ".repeat(idLength) + "|" + " ".repeat(volumeLength) + "|" + " ".repeat(priceLength) + "|\n";
+            "|" + " ".repeat(idLength) + "|" + " ".repeat(volumeLength) + "|" + " ".repeat(priceLength);
     private static String header = "+-----------------------------------------------------------------+\n" +
                                    "| BUY                            | SELL                           |\n" +
                                    "| Id       | Volume      | Price | Price | Volume      | Id       |\n" +
@@ -24,8 +24,8 @@ public class Printer {
 
     @NotNull public static String getOrderBook(
             @NotNull TreeSet<OrderInfo> buyInfos, @NotNull TreeSet<OrderInfo> sellInfos) {
-        var buyInfosIterator = buyInfos.descendingIterator();
-        var sellInfosIterator = sellInfos.descendingIterator();
+        var buyInfosIterator = buyInfos.iterator();
+        var sellInfosIterator = sellInfos.iterator();
         var orderBook = new StringBuilder(header);
 
         while(buyInfosIterator.hasNext() || sellInfosIterator.hasNext()) {
@@ -63,13 +63,23 @@ public class Printer {
 
     @NotNull private static List<String> getTriplesFromNumber(int number) {
         var triples = new ArrayList<String>();
-        while (number > 0) {
-            triples.add(Integer.toString(number % 1000));
+        while (number > 999) {
+            triples.add(getLastTriple(number));
             number /= 1000;
         }
 
+        triples.add(Integer.toString(number));
+
         Collections.reverse(triples);
         return triples;
+    }
+
+    private static String getLastTriple(int number) {
+        String lastDigit = Integer.toString(number % 10);
+        String middleDigit = Integer.toString(number / 10 % 10);
+        String firstDigit = Integer.toString(number / 100 % 10);
+
+        return firstDigit + middleDigit + lastDigit;
     }
 
     @NotNull private static String getRecord(@NotNull OrderInfo buyInfo, @NotNull OrderInfo sellInfo) {
@@ -82,7 +92,7 @@ public class Printer {
         }
         return getFormattedNumber(buyInfo.getId(), false, idLength) +
                getFormattedNumber(buyInfo.getPeak(), true, volumeLength) +
-               getFormattedNumber(buyInfo.getPrice(), true, volumeLength);
+               getFormattedNumber(buyInfo.getPrice(), true, priceLength);
     }
 
     @NotNull private static String getRecordSell(@NotNull OrderInfo sellInfo) {
