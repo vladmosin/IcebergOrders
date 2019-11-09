@@ -3,19 +3,21 @@ package ru.hse.icebergOrders;
 import org.jetbrains.annotations.NotNull;
 
 public class OrderInfo implements Comparable<OrderInfo> {
-    public static OrderInfo emptyInfo = new OrderInfo(-1, -1, -1, -1);
+    public static OrderInfo emptyInfo = new OrderInfo(OrderType.BUY, -1, -1, -1, -1);
 
     private int id;
     private int volume;
     private int peak;
     private int price;
     private int timestamp;
+    private OrderType orderType;
 
-    public OrderInfo(int id, int volume, int price, int peak) {
+    public OrderInfo(@NotNull OrderType orderType, int id, int volume, int price, int peak) {
         this.id = id;
         this.volume = volume;
         this.price = price;
         this.peak = peak;
+        this.orderType = orderType;
     }
 
     public int getId() {
