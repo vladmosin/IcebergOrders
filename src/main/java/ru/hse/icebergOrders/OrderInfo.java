@@ -1,44 +1,51 @@
 package ru.hse.icebergOrders;
 
-public class OrderInfo {
-    private int buyId;
-    private int buyVolume;
-    private int buyPrice;
-    private int sellPrice;
-    private int sellVolume;
-    private int sellId;
+import org.jetbrains.annotations.NotNull;
 
-    public OrderInfo(int buyId, int buyVolume, int buyPrice,
-                     int sellId, int sellVolume, int sellPrice) {
-        this.buyId = buyId;
-        this.buyVolume = buyVolume;
-        this.buyPrice = buyPrice;
-        this.sellId = sellId;
-        this.sellVolume = sellVolume;
-        this.sellPrice = sellPrice;
+public class OrderInfo implements Comparable<OrderInfo> {
+    public static OrderInfo emptyInfo = new OrderInfo(-1, -1, -1, -1);
+
+    private int id;
+    private int volume;
+    private int peak;
+    private int price;
+    private int timestamp;
+
+    public OrderInfo(int id, int volume, int price, int peak) {
+        this.id = id;
+        this.volume = volume;
+        this.price = price;
+        this.peak = peak;
     }
 
-    public int getBuyId() {
-        return buyId;
+    public int getId() {
+        return id;
     }
 
-    public int getBuyVolume() {
-        return buyVolume;
+    public int getVolume() {
+        return volume;
     }
 
-    public int getBuyPrice() {
-        return buyPrice;
+    public int getPrice() {
+        return price;
     }
 
-    public int getSellPrice() {
-        return sellPrice;
+    public int getPeak() {
+        return peak;
     }
 
-    public int getSellVolume() {
-        return sellVolume;
-    }
+    @Override
+    public int compareTo(@NotNull OrderInfo o) {
+        if (price < o.price) {
+            return -1;
+        } else if (price == o.price) {
+            if (peak < o.peak) {
+                return -1;
+            } else if (timestamp < o.timestamp) {
+                return -1;
+            }
+        }
 
-    public int getSellId() {
-        return sellId;
+        return 1;
     }
 }
