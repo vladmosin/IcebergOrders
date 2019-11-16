@@ -2,52 +2,46 @@ package ru.hse.icebergOrders;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 
 public class OrdersHolder {
-    private class TradeInfo {
-        @NotNull private String tradeMessage;
-        private OrderInfo remainingOrderInfo;
-
-        private TradeInfo(@NotNull String tradeMessage, OrderInfo remainingOrderInfo) {
-            this.tradeMessage = tradeMessage;
-            this.remainingOrderInfo = remainingOrderInfo;
-        }
-    }
-
     @NotNull private TreeSet<@NotNull OrderInfo> buyInfos = new TreeSet<>();
     @NotNull private TreeSet<@NotNull OrderInfo> sellInfos = new TreeSet<>();
 
-    @NotNull public List<String> addOrderInfo(@NotNull OrderInfo orderInfo) {
+    @NotNull public Collection<TradeInfo> addOrderInfo(@NotNull OrderInfo orderInfo) {
         if (orderInfo.getOrderType() == OrderType.BUY) {
             buyInfos.add(orderInfo);
         } else {
             sellInfos.add(orderInfo);
         }
 
-        return performTrades();
+        var performedTrades = performTrades();
+        return joinTrades(performedTrades, orderInfo.getOrderType());
     }
 
-    @NotNull private List<String> performTrades() {
-        var trades = new ArrayList<String>();
+    @NotNull private Collection<TradeInfo> joinTrades(@NotNull List<TradeInfo> performedTrades,
+                                                      @NotNull OrderType addedOrderType) {
+        var joinedTrades = new HashMap<Integer, TradeInfo>();
+
+        for (var trade : performedTrades) {
+            int notAddedOrderId = trade.getOppositeId(addedOrderType);
+            if (joinedTrades.containsKey(notAddedOrderId)) {
+                joinedTrades.get(notAddedOrderId).concatenateTrades(trade);
+            } else {
+                joinedTrades.put(notAddedOrderId, trade);
+            }
+        }
+
+        return joinedTrades.values();
+    }
+
+    @NotNull private List<TradeInfo> performTrades() {
+        var trades = new ArrayList<TradeInfo>();
         while (!buyInfos.isEmpty() && !sellInfos.isEmpty()) {
             if (buyInfos.first().getPrice() < sellInfos.first().getPrice()) {
                 break;
             }
-
-            var tradeInfo = processTrade();
-            var remainingOrderInfo = tradeInfo.remainingOrderInfo;
-            trades.add(tradeInfo.tradeMessage);
-
-            if (remainingOrderInfo != null) {
-                if (remainingOrderInfo.getOrderType() == OrderType.BUY) {
-                    buyInfos.add(remainingOrderInfo);
-                } else {
-                    sellInfos.add(remainingOrderInfo);
-                }
-            }
+            trades.add(processTrade());
         }
 
         return trades;
@@ -57,20 +51,25 @@ public class OrdersHolder {
         var buyInfo = buyInfos.pollFirst();
         var sellInfo = sellInfos.pollFirst();
 
-        int tradeVolume = Math.min(buyInfo.getVolume(), sellInfo.getVolume());
-        int price = buyInfo.getPrice();
-        OrderInfo remainingOrderInfo = null;
-
-        if (buyInfo.getVolume() > sellInfo.getVolume()) {
-            remainingOrderInfo = new OrderInfo(OrderType.BUY, buyInfo.getId(), buyInfo.getVolume() - tradeVolume,
-                    buyInfo.getPrice(), buyInfo.getVolume() - tradeVolume);
-        } else if (buyInfo.getVolume() < sellInfo.getVolume()) {
-            remainingOrderInfo = new OrderInfo(OrderType.SELL, sellInfo.getId(),
-                    sellInfo.getVolume() - tradeVolume, sellInfo.getPrice(),
-                    Math.min(sellInfo.getPeak(), sellInfo.getVolume() - tradeVolume));
+        if (buyInfo == null || sellInfo == null) {
+            throw new IllegalStateException("In process trade: trade list is empty");
         }
 
-        return new TradeInfo(Printer.getTrade(buyInfo.getId(), sellInfo.getId(), price, tradeVolume), remainingOrderInfo);
+        int tradeVolume = Math.min(buyInfo.getCurrentPeak(), sellInfo.getCurrentPeak());
+        int price = buyInfo.getPrice();
+
+        buyInfo.tradePart(tradeVolume);
+        sellInfo.tradePart(tradeVolume);
+
+        if (!buyInfo.isEmpty()) {
+            buyInfos.add(buyInfo);
+        }
+
+        if (!sellInfo.isEmpty()) {
+            sellInfos.add(sellInfo);
+        }
+
+        return new TradeInfo(buyInfo.getId(), sellInfo.getId(), price, tradeVolume);
     }
 
     @NotNull public String getOrderBook() {

@@ -17,9 +17,9 @@ public class Trading {
             String query = in.nextLine();
             if (isOrder(query)) {
                 var orderInfo = parseQuery(query);
-                List<String> tradeMessages = ordersHolder.addOrderInfo(orderInfo);
-                for (var tradeMessage : tradeMessages) {
-                    System.out.print(tradeMessage);
+                var trades = ordersHolder.addOrderInfo(orderInfo);
+                for (var trade : trades) {
+                    System.out.print(trade.toString());
                 }
 
                 System.out.print(ordersHolder.getOrderBook());

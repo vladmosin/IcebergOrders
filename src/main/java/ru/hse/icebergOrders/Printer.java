@@ -91,7 +91,7 @@ public class Printer {
             return emptyRecordBuy;
         }
         return getFormattedNumber(buyInfo.getId(), false, idLength) +
-               getFormattedNumber(buyInfo.getPeak(), true, volumeLength) +
+               getFormattedNumber(buyInfo.getCurrentPeak(), true, volumeLength) +
                getFormattedNumber(buyInfo.getPrice(), true, priceLength);
     }
 
@@ -100,7 +100,7 @@ public class Printer {
             return emptyRecordSell;
         }
         return getFormattedNumber(sellInfo.getPrice(), true, priceLength) +
-               getFormattedNumber(sellInfo.getPeak(), true, volumeLength) +
+               getFormattedNumber(sellInfo.getCurrentPeak(), true, volumeLength) +
                getFormattedNumber(sellInfo.getPrice(), false, idLength) + "|\n";
     }
 }
