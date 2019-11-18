@@ -53,12 +53,11 @@ class OrdersHolderTest {
         ordersHolder.addOrderInfo(sellOrder2);
 
         var realSellOrders = getOrderInfos(ordersHolder, "sellInfos");
-        var copySellOrder2 = new OrderInfo(OrderType.SELL, sellId2, sellVolume2, sellPrice2, sellPeak2);
         var sellOrders = new TreeSet<OrderInfo>();
 
         sellOrders.add(sellOrder1);
         assertFalse(containersEqual(realSellOrders.iterator(), sellOrders.iterator()));
-        sellOrders.add(copySellOrder2);
+        sellOrders.add(sellOrder2);
         assertTrue(containersEqual(realSellOrders.iterator(), sellOrders.iterator()));
     }
 
@@ -83,12 +82,11 @@ class OrdersHolderTest {
         ordersHolder.addOrderInfo(buyOrder2);
 
         var realBuyOrders = getOrderInfos(ordersHolder, "buyInfos");
-        var copyBuyOrder2 = new OrderInfo(OrderType.BUY, buyId2, buyVolume2, buyPrice2, buyPeak2);
         var buyOrders = new TreeSet<OrderInfo>();
 
         buyOrders.add(buyOrder1);
         assertFalse(containersEqual(realBuyOrders.iterator(), buyOrders.iterator()));
-        buyOrders.add(copyBuyOrder2);
+        buyOrders.add(buyOrder2);
         assertTrue(containersEqual(realBuyOrders.iterator(), buyOrders.iterator()));
     }
 
@@ -307,11 +305,100 @@ class OrdersHolderTest {
 
         var leftOrder2 = new OrderInfo(OrderType.SELL, sellId2, sellVolume2 + sellPeak1 - buyVolume,
                 sellPrice2, sellPeak2, sellVolume2 + sellPeak1 - buyVolume);
-        var leftOrder1 = new OrderInfo(OrderType.SELL, sellId1, sellVolume1 - sellPeak1, sellPrice1, sellPeak1);
+        var leftOrder1 = new OrderInfo(OrderType.SELL, sellId1, sellVolume1 - sellPeak1,
+                sellPrice1, sellPeak1, sellPeak1);
 
         var sellOrders = new TreeSet<OrderInfo>();
         sellOrders.add(leftOrder1);
         sellOrders.add(leftOrder2);
+
+        assertTrue(containersEqual(sellOrders.iterator(), sellInfos.iterator()));
+        assertTrue(containersEqual(tradeInfos.iterator(),
+                trades.iterator()));
+    }
+
+    @Test
+    void testTradingWithFullVolumeBuy() throws NoSuchFieldException, IllegalAccessException {
+        var ordersHolder = new OrdersHolder();
+
+        int sellId1 = 0;
+        int sellVolume1 = 100;
+        int sellPeak1 = 20;
+        int sellPrice1 = 30;
+
+        int sellId2 = 2;
+        int sellVolume2 = 100;
+        int sellPeak2 = 30;
+        int sellPrice2 = 30;
+
+        var sellOrder1 = new OrderInfo(OrderType.SELL, sellId1, sellVolume1, sellPrice1, sellPeak1);
+        var sellOrder2 = new OrderInfo(OrderType.SELL, sellId2, sellVolume2, sellPrice2, sellPeak2);
+        ordersHolder.addOrderInfo(sellOrder1);
+        ordersHolder.addOrderInfo(sellOrder2);
+
+        int buyId = 1;
+        int buyVolume = 1000;
+        int buyPeak = 15;
+        int buyPrice = 40;
+
+        var buyOrder = new OrderInfo(OrderType.BUY, buyId, buyVolume, buyPrice, buyPeak);
+        var trades = ordersHolder.addOrderInfo(buyOrder);
+
+        var sellInfos = getOrderInfos(ordersHolder, "sellInfos");
+        var buyInfos = getOrderInfos(ordersHolder, "buyInfos");
+
+        assertEquals(0, sellInfos.size());
+        var tradeInfos = List.of(new TradeInfo(buyId, sellId1, sellPrice1, sellVolume1),
+                new TradeInfo(buyId, sellId2, sellPrice2, sellVolume1));
+
+        var leftOrder = new OrderInfo(OrderType.BUY, buyId, buyVolume - sellVolume1 - sellVolume2,
+                buyPrice, buyPeak, buyPeak);
+        var buyOrders = new TreeSet<OrderInfo>();
+        buyOrders.add(leftOrder);
+
+        assertTrue(containersEqual(buyOrders.iterator(), buyInfos.iterator()));
+        assertTrue(containersEqual(tradeInfos.iterator(),
+                trades.iterator()));
+    }
+
+    @Test
+    void testTradingWithFullVolumeSell() throws NoSuchFieldException, IllegalAccessException {
+        var ordersHolder = new OrdersHolder();
+
+        int buyId1 = 0;
+        int buyVolume1 = 100;
+        int buyPeak1 = 20;
+        int buyPrice1 = 30;
+
+        int buyId2 = 2;
+        int buyVolume2 = 100;
+        int buyPeak2 = 30;
+        int buyPrice2 = 30;
+
+        var buyOrder1 = new OrderInfo(OrderType.BUY, buyId1, buyVolume1, buyPrice1, buyPeak1);
+        var buyOrder2 = new OrderInfo(OrderType.BUY, buyId2, buyVolume2, buyPrice2, buyPeak2);
+        ordersHolder.addOrderInfo(buyOrder1);
+        ordersHolder.addOrderInfo(buyOrder2);
+
+        int sellId = 1;
+        int sellVolume = 1000;
+        int sellPeak = 15;
+        int sellPrice = 20;
+
+        var sellOrder = new OrderInfo(OrderType.SELL, sellId, sellVolume, sellPrice, sellPeak);
+        var trades = ordersHolder.addOrderInfo(sellOrder);
+
+        var sellInfos = getOrderInfos(ordersHolder, "sellInfos");
+        var buyInfos = getOrderInfos(ordersHolder, "buyInfos");
+
+        assertEquals(0, buyInfos.size());
+        var tradeInfos = List.of(new TradeInfo(buyId1, sellId, sellPrice, buyVolume1),
+                new TradeInfo(buyId2, sellId, sellPrice, buyVolume1));
+
+        var leftOrder = new OrderInfo(OrderType.SELL, sellId, sellVolume - buyVolume1 - buyVolume2,
+                sellPrice, sellPeak, sellPeak);
+        var sellOrders = new TreeSet<OrderInfo>();
+        sellOrders.add(leftOrder);
 
         assertTrue(containersEqual(sellOrders.iterator(), sellInfos.iterator()));
         assertTrue(containersEqual(tradeInfos.iterator(),

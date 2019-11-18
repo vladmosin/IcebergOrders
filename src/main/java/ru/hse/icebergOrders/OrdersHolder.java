@@ -30,6 +30,7 @@ public class OrdersHolder {
         }
 
         var performedTrades = performTrades();
+        orderInfo.setCurrentPeak();
         return joinTrades(performedTrades, orderInfo.getOrderType());
     }
 

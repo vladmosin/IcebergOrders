@@ -28,7 +28,7 @@ public class OrderInfo implements Comparable<OrderInfo> {
         this.id = id;
         this.volume = volume;
         this.price = price;
-        this.currentPeak = peak;
+        this.currentPeak = volume;
         this.maxPeak = peak;
         this.orderType = orderType;
         this.timestamp = globalTime;
@@ -124,5 +124,13 @@ public class OrderInfo implements Comparable<OrderInfo> {
                maxPeak == orderInfo.maxPeak &&
                price == orderInfo.price &&
                orderType == orderInfo.orderType;
+    }
+
+    /**
+     * Sets peak volume
+     * Should be called after aggressive trading was performed
+     * */
+    public void setCurrentPeak() {
+        currentPeak = Math.min(volume, maxPeak);
     }
 }
