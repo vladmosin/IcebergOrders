@@ -4,10 +4,24 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+/**
+ * Stores all active orders and performs trades
+ * */
 public class OrdersHolder {
+    /**
+     * Stores all buy orders
+     * */
     @NotNull private TreeSet<@NotNull OrderInfo> buyInfos = new TreeSet<>();
+
+    /**
+     * Stores all sell orders
+     * */
     @NotNull private TreeSet<@NotNull OrderInfo> sellInfos = new TreeSet<>();
 
+    /**
+     * Adds given order to currently observed orders
+     * @return all trades, performed after adding given order
+     * */
     @NotNull public Collection<TradeInfo> addOrderInfo(@NotNull OrderInfo orderInfo) {
         if (orderInfo.getOrderType() == OrderType.BUY) {
             buyInfos.add(orderInfo);
@@ -19,6 +33,9 @@ public class OrdersHolder {
         return joinTrades(performedTrades, orderInfo.getOrderType());
     }
 
+    /**
+     * Joins trades with same buyId and sellId
+     * */
     @NotNull private Collection<TradeInfo> joinTrades(@NotNull List<TradeInfo> performedTrades,
                                                       @NotNull OrderType addedOrderType) {
         var joinedTrades = new HashMap<Integer, TradeInfo>();
@@ -35,6 +52,9 @@ public class OrdersHolder {
         return joinedTrades.values();
     }
 
+    /**
+     * Performs all trades which occurs after adding new order
+     * */
     @NotNull private List<TradeInfo> performTrades() {
         var trades = new ArrayList<TradeInfo>();
         while (!buyInfos.isEmpty() && !sellInfos.isEmpty()) {
@@ -47,6 +67,9 @@ public class OrdersHolder {
         return trades;
     }
 
+    /**
+     * Processes one trade
+     * */
     @NotNull private TradeInfo processTrade() {
         var buyInfo = buyInfos.pollFirst();
         var sellInfo = sellInfos.pollFirst();
@@ -56,7 +79,7 @@ public class OrdersHolder {
         }
 
         int tradeVolume = Math.min(buyInfo.getCurrentPeak(), sellInfo.getCurrentPeak());
-        int price = buyInfo.getPrice();
+        int price = sellInfo.getPrice();
 
         buyInfo.tradePart(tradeVolume);
         sellInfo.tradePart(tradeVolume);
@@ -72,6 +95,9 @@ public class OrdersHolder {
         return new TradeInfo(buyInfo.getId(), sellInfo.getId(), price, tradeVolume);
     }
 
+    /**
+     * Returns current order book
+     * */
     @NotNull public String getOrderBook() {
         return Printer.getOrderBook(buyInfos, sellInfos);
     }

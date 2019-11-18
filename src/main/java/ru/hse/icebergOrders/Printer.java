@@ -7,10 +7,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TreeSet;
 
+
+/**
+ * Stores different functions to print order book
+ * */
 public class Printer {
+    /**
+     * Stores fields width in spaces
+     * */
     private static final int idLength = 10;
     private static final int volumeLength = 13;
     private static final int priceLength = 7;
+
     private static final String emptyRecordSell =
             "|" + " ".repeat(priceLength) + "|" + " ".repeat(volumeLength) + "|" + " ".repeat(idLength) + "|\n";
     private static final String emptyRecordBuy =
@@ -22,6 +30,9 @@ public class Printer {
 
     private static String lastLine = "+-----------------------------------------------------------------+\n";
 
+    /**
+     * Returns string order book
+     * */
     @NotNull public static String getOrderBook(
             @NotNull TreeSet<OrderInfo> buyInfos, @NotNull TreeSet<OrderInfo> sellInfos) {
         var buyInfosIterator = buyInfos.iterator();
@@ -46,10 +57,9 @@ public class Printer {
         return orderBook.append(lastLine).toString();
     }
 
-    @NotNull public static String getTrade(int buyId, int sellId, int price, int quantity) {
-        return buyId + "," + sellId + "," + price + "," + quantity + "\n";
-    }
-
+    /**
+     * Converts number to string with comma divisors if needed
+     * */
     @NotNull private static String getFormattedNumber(int number, boolean useCommas, int length) {
         String numberInString;
         if (useCommas) {
@@ -61,6 +71,9 @@ public class Printer {
         return "|" + " ".repeat(length - numberInString.length()) + numberInString;
     }
 
+    /**
+     * Returns list of triples from number
+     * */
     @NotNull private static List<String> getTriplesFromNumber(int number) {
         var triples = new ArrayList<String>();
         while (number > 999) {
@@ -101,6 +114,6 @@ public class Printer {
         }
         return getFormattedNumber(sellInfo.getPrice(), true, priceLength) +
                getFormattedNumber(sellInfo.getCurrentPeak(), true, volumeLength) +
-               getFormattedNumber(sellInfo.getPrice(), false, idLength) + "|\n";
+               getFormattedNumber(sellInfo.getId(), false, idLength) + "|\n";
     }
 }

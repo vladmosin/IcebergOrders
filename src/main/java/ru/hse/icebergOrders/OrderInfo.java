@@ -2,8 +2,18 @@ package ru.hse.icebergOrders;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Holds all information about order
+ * */
 public class OrderInfo implements Comparable<OrderInfo> {
+    /**
+     * Special holder, which does not hold any information
+     * */
     public static OrderInfo emptyInfo = new OrderInfo(OrderType.BUY, -1, -1, -1, -1);
+
+    /**
+     * Timestamp for orders, unique.
+     * */
     private static long globalTime = 0;
 
     private final int id;
@@ -25,6 +35,11 @@ public class OrderInfo implements Comparable<OrderInfo> {
         globalTime++;
     }
 
+    public OrderInfo(@NotNull OrderType orderType, int id, int volume, int price, int peak, int currentPeak) {
+        this(orderType, id, volume, price, peak);
+        this.currentPeak = currentPeak;
+    }
+
     public int getId() {
         return id;
     }
@@ -35,10 +50,6 @@ public class OrderInfo implements Comparable<OrderInfo> {
 
     public int getCurrentPeak() {
         return currentPeak;
-    }
-
-    public int getMaxPeak() {
-        return maxPeak;
     }
 
     @NotNull public OrderType getOrderType() {
@@ -82,17 +93,36 @@ public class OrderInfo implements Comparable<OrderInfo> {
         globalTime++;
     }
 
+    /**
+     * Decrease volume on given argument
+     * If current peak decreases to zero, the order changes its timestamp to the greatest
+     * and updates current peak
+     * */
     public void tradePart(int tradeVolume) {
         volume -= tradeVolume;
         currentPeak -= tradeVolume;
 
         if (currentPeak == 0) {
-            currentPeak = Math.max(volume, maxPeak);
+            currentPeak = Math.min(volume, maxPeak);
             updateTimestamp();
         }
     }
 
     public boolean isEmpty() {
         return volume == 0;
+    }
+
+    @Override
+    public boolean equals(@NotNull Object o) {
+        if (!(o instanceof OrderInfo)) {
+            return false;
+        }
+        var orderInfo = (OrderInfo)o;
+        return id == orderInfo.id &&
+               volume == orderInfo.volume &&
+               currentPeak == orderInfo.currentPeak &&
+               maxPeak == orderInfo.maxPeak &&
+               price == orderInfo.price &&
+               orderType == orderInfo.orderType;
     }
 }
