@@ -26,3 +26,13 @@ hs_err_pid*
 .idea
 !gradle/wrapper/gradle-wrapper.jar
 input
+*.css
+*.js
+*.html
+*.tar
+build/scripts/IcebergOrder
+*.bat
+*.bin
+*.idx
+*.xml
+*.MF
