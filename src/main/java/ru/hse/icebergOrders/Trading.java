@@ -17,7 +17,9 @@ public class Trading {
                     System.out.print(trade.toString());
                 }
 
-                System.out.print(ordersHolder.getOrderBook());
+                var buyInfos = ordersHolder.getBuyInfos();
+                var sellInfos = ordersHolder.getSellInfos();
+                System.out.print(Printer.getOrderBook(buyInfos, sellInfos));
             }
         }
     }

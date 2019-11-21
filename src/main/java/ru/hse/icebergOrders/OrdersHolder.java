@@ -97,9 +97,16 @@ public class OrdersHolder {
     }
 
     /**
-     * Returns current order book
+     * Returns buy infos from current order book
      * */
-    @NotNull public String getOrderBook() {
-        return Printer.getOrderBook(buyInfos, sellInfos);
+    @NotNull public TreeSet<OrderInfo> getBuyInfos() {
+        return buyInfos;
+    }
+
+    /**
+     * Returns sell infos from current order book
+     * */
+    @NotNull public TreeSet<OrderInfo> getSellInfos() {
+        return sellInfos;
     }
 }

@@ -3,7 +3,6 @@ package ru.hse.icebergOrders;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
@@ -24,16 +23,8 @@ class OrdersHolderTest {
         return !first.hasNext() && !second.hasNext();
     }
 
-    private TreeSet<OrderInfo> getOrderInfos(@NotNull OrdersHolder ordersHolder, @NotNull String fieldName)
-            throws NoSuchFieldException, IllegalAccessException {
-        Field field = OrdersHolder.class.getDeclaredField(fieldName);
-        field.setAccessible(true);
-
-        return (TreeSet<OrderInfo>)field.get(ordersHolder);
-    }
-
     @Test
-    void testAddingToOrderBookCell() throws NoSuchFieldException, IllegalAccessException {
+    void testAddingToOrderBookCell() {
         var ordersHolder = new OrdersHolder();
 
         int sellId1 = 0;
@@ -52,7 +43,7 @@ class OrdersHolderTest {
         var sellOrder2 = new OrderInfo(OrderType.SELL, sellId2, sellVolume2, sellPrice2, sellPeak2);
         ordersHolder.addOrderInfo(sellOrder2);
 
-        var realSellOrders = getOrderInfos(ordersHolder, "sellInfos");
+        var realSellOrders = ordersHolder.getSellInfos();
         var sellOrders = new TreeSet<OrderInfo>();
 
         sellOrders.add(sellOrder1);
@@ -62,7 +53,7 @@ class OrdersHolderTest {
     }
 
     @Test
-    void testAddingToOrderBookBuy() throws NoSuchFieldException, IllegalAccessException {
+    void testAddingToOrderBookBuy() {
         var ordersHolder = new OrdersHolder();
 
         int buyId1 = 0;
@@ -81,7 +72,7 @@ class OrdersHolderTest {
         var buyOrder2 = new OrderInfo(OrderType.BUY, buyId2, buyVolume2, buyPrice2, buyPeak2);
         ordersHolder.addOrderInfo(buyOrder2);
 
-        var realBuyOrders = getOrderInfos(ordersHolder, "buyInfos");
+        var realBuyOrders = ordersHolder.getBuyInfos();
         var buyOrders = new TreeSet<OrderInfo>();
 
         buyOrders.add(buyOrder1);
@@ -91,7 +82,7 @@ class OrdersHolderTest {
     }
 
     @Test
-    void testFullLimitOrder() throws NoSuchFieldException, IllegalAccessException {
+    void testFullLimitOrder() {
         var ordersHolder = new OrdersHolder();
 
         int sellId = 0;
@@ -110,8 +101,8 @@ class OrdersHolderTest {
         var buyOrder = new OrderInfo(OrderType.BUY, buyId, buyVolume, buyPrice, buyPeak);
         var trades = ordersHolder.addOrderInfo(buyOrder);
 
-        var sellInfos = getOrderInfos(ordersHolder, "sellInfos");
-        var buyInfos = getOrderInfos(ordersHolder, "buyInfos");
+        var sellInfos = ordersHolder.getSellInfos();
+        var buyInfos = ordersHolder.getBuyInfos();
 
         assertEquals(0, sellInfos.size());
         assertEquals(0, buyInfos.size());
@@ -122,7 +113,7 @@ class OrdersHolderTest {
     }
 
     @Test
-    void testFullIcebergOrder() throws NoSuchFieldException, IllegalAccessException {
+    void testFullIcebergOrder() {
         var ordersHolder = new OrdersHolder();
 
         int sellId = 0;
@@ -141,8 +132,8 @@ class OrdersHolderTest {
         var buyOrder = new OrderInfo(OrderType.BUY, buyId, buyVolume, buyPrice, buyPeak);
         var trades = ordersHolder.addOrderInfo(buyOrder);
 
-        var sellInfos = getOrderInfos(ordersHolder, "sellInfos");
-        var buyInfos = getOrderInfos(ordersHolder, "buyInfos");
+        var sellInfos = ordersHolder.getSellInfos();
+        var buyInfos = ordersHolder.getBuyInfos();
 
         assertEquals(0, sellInfos.size());
         assertEquals(0, buyInfos.size());
@@ -153,7 +144,7 @@ class OrdersHolderTest {
     }
 
     @Test
-    void testPartOrder() throws NoSuchFieldException, IllegalAccessException {
+    void testPartOrder() {
         var ordersHolder = new OrdersHolder();
 
         int sellId = 0;
@@ -172,8 +163,8 @@ class OrdersHolderTest {
         var buyOrder = new OrderInfo(OrderType.BUY, buyId, buyVolume, buyPrice, buyPeak);
         var trades = ordersHolder.addOrderInfo(buyOrder);
 
-        var sellInfos = getOrderInfos(ordersHolder, "sellInfos");
-        var buyInfos = getOrderInfos(ordersHolder, "buyInfos");
+        var sellInfos = ordersHolder.getSellInfos();
+        var buyInfos = ordersHolder.getBuyInfos();
 
         assertEquals(0, buyInfos.size());
         var tradeInfos = List.of(new TradeInfo(buyId, sellId, sellPrice, buyVolume));
@@ -188,7 +179,7 @@ class OrdersHolderTest {
     }
 
     @Test
-    void testOrderingByPrice() throws NoSuchFieldException, IllegalAccessException {
+    void testOrderingByPrice() {
         var ordersHolder = new OrdersHolder();
 
         int sellId1 = 0;
@@ -214,8 +205,8 @@ class OrdersHolderTest {
         var buyOrder = new OrderInfo(OrderType.BUY, buyId, buyVolume, buyPrice, buyPeak);
         var trades = ordersHolder.addOrderInfo(buyOrder);
 
-        var sellInfos = getOrderInfos(ordersHolder, "sellInfos");
-        var buyInfos = getOrderInfos(ordersHolder, "buyInfos");
+        var sellInfos = ordersHolder.getSellInfos();
+        var buyInfos = ordersHolder.getBuyInfos();
 
         assertEquals(0, buyInfos.size());
         var tradeInfos = List.of(new TradeInfo(buyId, sellId2, sellPrice2, buyVolume));
@@ -229,7 +220,7 @@ class OrdersHolderTest {
     }
 
     @Test
-    void testOrderingByTimestamp() throws NoSuchFieldException, IllegalAccessException {
+    void testOrderingByTimestamp() {
         var ordersHolder = new OrdersHolder();
 
         int sellId1 = 0;
@@ -255,8 +246,8 @@ class OrdersHolderTest {
         var buyOrder = new OrderInfo(OrderType.BUY, buyId, buyVolume, buyPrice, buyPeak);
         var trades = ordersHolder.addOrderInfo(buyOrder);
 
-        var sellInfos = getOrderInfos(ordersHolder, "sellInfos");
-        var buyInfos = getOrderInfos(ordersHolder, "buyInfos");
+        var sellInfos = ordersHolder.getSellInfos();
+        var buyInfos = ordersHolder.getBuyInfos();
 
         assertEquals(0, buyInfos.size());
         var tradeInfos = List.of(new TradeInfo(buyId, sellId1, sellPrice1, buyVolume));
@@ -270,7 +261,7 @@ class OrdersHolderTest {
     }
 
     @Test
-    void testTimestampUpdateAfterTrade() throws NoSuchFieldException, IllegalAccessException {
+    void testTimestampUpdateAfterTrade() {
         var ordersHolder = new OrdersHolder();
 
         int sellId1 = 0;
@@ -296,8 +287,8 @@ class OrdersHolderTest {
         var buyOrder = new OrderInfo(OrderType.BUY, buyId, buyVolume, buyPrice, buyPeak);
         var trades = ordersHolder.addOrderInfo(buyOrder);
 
-        var sellInfos = getOrderInfos(ordersHolder, "sellInfos");
-        var buyInfos = getOrderInfos(ordersHolder, "buyInfos");
+        var sellInfos = ordersHolder.getSellInfos();
+        var buyInfos = ordersHolder.getBuyInfos();
 
         assertEquals(0, buyInfos.size());
         var tradeInfos = List.of(new TradeInfo(buyId, sellId1, sellPrice1, sellPeak1),
@@ -318,7 +309,7 @@ class OrdersHolderTest {
     }
 
     @Test
-    void testTradingWithFullVolumeBuy() throws NoSuchFieldException, IllegalAccessException {
+    void testTradingWithFullVolumeBuy() {
         var ordersHolder = new OrdersHolder();
 
         int sellId1 = 0;
@@ -344,8 +335,8 @@ class OrdersHolderTest {
         var buyOrder = new OrderInfo(OrderType.BUY, buyId, buyVolume, buyPrice, buyPeak);
         var trades = ordersHolder.addOrderInfo(buyOrder);
 
-        var sellInfos = getOrderInfos(ordersHolder, "sellInfos");
-        var buyInfos = getOrderInfos(ordersHolder, "buyInfos");
+        var sellInfos = ordersHolder.getSellInfos();
+        var buyInfos = ordersHolder.getBuyInfos();
 
         assertEquals(0, sellInfos.size());
         var tradeInfos = List.of(new TradeInfo(buyId, sellId1, sellPrice1, sellVolume1),
@@ -362,7 +353,7 @@ class OrdersHolderTest {
     }
 
     @Test
-    void testTradingWithFullVolumeSell() throws NoSuchFieldException, IllegalAccessException {
+    void testTradingWithFullVolumeSell() {
         var ordersHolder = new OrdersHolder();
 
         int buyId1 = 0;
@@ -388,8 +379,8 @@ class OrdersHolderTest {
         var sellOrder = new OrderInfo(OrderType.SELL, sellId, sellVolume, sellPrice, sellPeak);
         var trades = ordersHolder.addOrderInfo(sellOrder);
 
-        var sellInfos = getOrderInfos(ordersHolder, "sellInfos");
-        var buyInfos = getOrderInfos(ordersHolder, "buyInfos");
+        var sellInfos = ordersHolder.getSellInfos();
+        var buyInfos = ordersHolder.getBuyInfos();
 
         assertEquals(0, buyInfos.size());
         var tradeInfos = List.of(new TradeInfo(buyId1, sellId, sellPrice, buyVolume1),
