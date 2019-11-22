@@ -40,6 +40,7 @@ public class OrdersHolder {
     @NotNull private Collection<TradeInfo> joinTrades(@NotNull List<TradeInfo> performedTrades,
                                                       @NotNull OrderType addedOrderType) {
         var joinedTrades = new HashMap<Integer, TradeInfo>();
+        var orderedTrades = new ArrayList<TradeInfo>();
 
         for (var trade : performedTrades) {
             int notAddedOrderId = trade.getOppositeId(addedOrderType);
@@ -47,10 +48,11 @@ public class OrdersHolder {
                 joinedTrades.get(notAddedOrderId).concatenateTrades(trade);
             } else {
                 joinedTrades.put(notAddedOrderId, trade);
+                orderedTrades.add(trade);
             }
         }
 
-        return joinedTrades.values();
+        return orderedTrades;
     }
 
     /**
