@@ -58,4 +58,8 @@ public class TradeInfo {
                price == tradeInfo.price &&
                volume == tradeInfo.volume;
     }
+
+    public int getPrice() {
+        return price;
+    }
 }

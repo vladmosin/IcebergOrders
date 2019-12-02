@@ -5,11 +5,14 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class OrdersHolderTest {
+    private static int id = 0;
+
     private boolean containersEqual(@NotNull Iterator<?> first, @NotNull Iterator<?> second) {
         while(first.hasNext() && second.hasNext()) {
             var firstElem = first.next();
@@ -395,4 +398,63 @@ class OrdersHolderTest {
         assertTrue(containersEqual(tradeInfos.iterator(),
                 trades.iterator()));
     }
+
+    @Test
+    void stressTest() {
+        int experiments = 100;
+        int iterations = 10000;
+        long seed = 239;
+
+        var random = new Random(seed);
+
+        for (int i = 0; i < experiments; i++) {
+            var ordersHolder = new OrdersHolder();
+            for (int j = 0; j < iterations; j++) {
+                var orderInfo = generateRandomOrderInfo(random);
+                var trades = ordersHolder.addOrderInfo(orderInfo);
+
+                assertTrue(isSortedByPrice(trades));
+                if (trades.size() > 0 && ordersHolder.getBuyInfos().size() > 0) {
+                    assertTrue(trades.get(trades.size() - 1).getPrice() <= ordersHolder.getBuyInfos().first().getPrice());
+                }
+
+                if (trades.size() > 0 && ordersHolder.getSellInfos().size() > 0) {
+                    assertTrue(trades.get(trades.size() - 1).getPrice() <= ordersHolder.getSellInfos().first().getPrice());
+                }
+            }
+        }
+    }
+
+    @NotNull private OrderInfo generateRandomOrderInfo(@NotNull Random random) {
+        int maxPrice = 100;
+        int maxVolume = 100;
+
+        int type = random.nextInt(1);
+        int price = random.nextInt(maxPrice) + 1;
+        int volume = random.nextInt(maxVolume) + 1;
+        int peak = random.nextInt(volume) + 1;
+        int orderId = id++;
+
+        OrderType orderType = OrderType.SELL;
+        if (type == 0) {
+            orderType = OrderType.BUY;
+        }
+
+        return new OrderInfo(orderType, id, volume, price, peak);
+    }
+
+    private boolean isSortedByPrice(@NotNull List<TradeInfo> tradeInfos) {
+        int minPrice = -1;
+        for (var tradeInfo : tradeInfos) {
+            if (minPrice == -1 || tradeInfo.getPrice() <= minPrice) {
+                minPrice = tradeInfo.getPrice();
+            } else {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
 }

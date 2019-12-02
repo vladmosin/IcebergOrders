@@ -22,7 +22,7 @@ public class OrdersHolder {
      * Adds given order to currently observed orders
      * @return all trades, performed after adding given order
      * */
-    @NotNull public Collection<TradeInfo> addOrderInfo(@NotNull OrderInfo orderInfo) {
+    @NotNull public List<TradeInfo> addOrderInfo(@NotNull OrderInfo orderInfo) {
         if (orderInfo.getOrderType() == OrderType.BUY) {
             buyInfos.add(orderInfo);
         } else {
@@ -37,7 +37,7 @@ public class OrdersHolder {
     /**
      * Joins trades with same buyId and sellId
      * */
-    @NotNull private Collection<TradeInfo> joinTrades(@NotNull List<TradeInfo> performedTrades,
+    @NotNull private List<TradeInfo> joinTrades(@NotNull List<TradeInfo> performedTrades,
                                                       @NotNull OrderType addedOrderType) {
         var joinedTrades = new HashMap<Integer, TradeInfo>();
         var orderedTrades = new ArrayList<TradeInfo>();
@@ -78,7 +78,7 @@ public class OrdersHolder {
         var sellInfo = sellInfos.pollFirst();
 
         if (buyInfo == null || sellInfo == null) {
-            throw new IllegalStateException("In process trade: trade list is empty");
+            throw new IllegalStateException("In process trade: trades list is empty");
         }
 
         int tradeVolume = Math.min(buyInfo.getCurrentPeak(), sellInfo.getCurrentPeak());
